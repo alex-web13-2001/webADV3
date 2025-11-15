@@ -14,6 +14,9 @@ node_modules/
 /build
 /dist
 
+# Backend build
+backend/dist/
+
 # Misc
 .DS_Store
 *.pem
