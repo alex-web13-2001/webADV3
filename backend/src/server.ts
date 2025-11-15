@@ -8,10 +8,16 @@ import apiRoutes from './routes/api.routes';
 
 const app: Application = express();
 
-// Security middleware
+/**
+ * Настройка безопасности
+ * Helmet защищает приложение от распространенных веб-уязвимостей
+ */
 app.use(helmet());
 
-// CORS
+/**
+ * Настройка CORS
+ * Разрешаем запросы только с фронтенд-приложения
+ */
 app.use(
   cors({
     origin: config.frontendUrl,
@@ -19,7 +25,10 @@ app.use(
   })
 );
 
-// Rate limiting
+/**
+ * Ограничение частоты запросов
+ * Защита от DDoS и брутфорса
+ */
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.maxRequests,
@@ -34,11 +43,16 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Body parser
+/**
+ * Парсинг тела запроса
+ */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
+/**
+ * Health check endpoint
+ * Проверка работоспособности сервера
+ */
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     success: true,
@@ -47,10 +61,14 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// API routes
+/**
+ * API маршруты
+ */
 app.use('/api', apiRoutes);
 
-// 404 handler
+/**
+ * Обработчик 404 ошибок
+ */
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -59,7 +77,10 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Error handler (must be last)
+/**
+ * Глобальный обработчик ошибок
+ * Должен быть последним middleware
+ */
 app.use(errorHandler);
 
 const PORT = config.port;
