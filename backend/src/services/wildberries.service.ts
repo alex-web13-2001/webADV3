@@ -116,13 +116,47 @@ export class WildberriesService {
 
   /**
    * Получение списка всех рекламных кампаний
-   * POST /adv/v1/promotion/adverts
+   * Сначала GET /adv/v1/promotion/count для получения ID
+   * Затем POST /adv/v1/promotion/adverts для получения деталей
    */
   async getCampaigns(): Promise<Campaign[]> {
     try {
-      // POST с пустым массивом для получения всех кампаний
-      const response = await this.client.post<Campaign[]>('/adv/v1/promotion/adverts', []);
-      return response.data;
+      // Шаг 1: Получаем список ID всех кампаний
+      const countResponse = await this.client.get('/adv/v1/promotion/count');
+      const ids = countResponse.data || [];
+      
+      if (ids.length === 0) {
+        return [];
+      }
+      
+      // Шаг 2: Разбиваем ID на чанки по 50 (лимит API)
+      const chunks: number[][] = [];
+      for (let i = 0; i < ids.length; i += 50) {
+        chunks.push(ids.slice(i, i + 50));
+      }
+      
+      // Шаг 3: Получаем детали для каждого чанка
+      const allCampaigns: Campaign[] = [];
+      for (const chunk of chunks) {
+        const response = await this.client.post<Campaign[]>(
+          '/adv/v1/promotion/adverts',
+          chunk,
+          {
+            params: {
+              status: -1,        // Все статусы
+              type: 8,           // Все типы (или нужный тип)
+              order: 'create',   // Сортировка по дате создания
+              direction: 'desc'  // От новых к старым
+            }
+          }
+        );
+        
+        if (response.data && Array.isArray(response.data)) {
+          allCampaigns.push(...response.data);
+        }
+      }
+      
+      return allCampaigns;
     } catch (error) {
       this.handleError(error, '/adv/v1/promotion/adverts');
     }
