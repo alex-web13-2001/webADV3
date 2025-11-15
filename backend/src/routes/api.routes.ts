@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import { validateApiKey } from '../middleware/validateApiKey';
 import {
+  validateToken,
+  getBalance,
+  getCampaignsList,
+  getCampaignOverview,
+  getCpmClusters,
+  getManualKeywords,
+  getAutoStats,
   testApiKey,
   getCampaigns,
   getCampaignStats,
@@ -10,19 +17,36 @@ import {
 
 const router = Router();
 
-// Test API key
+/**
+ * Маршруты API для работы с рекламными кампаниями Wildberries
+ */
+
+// Авторизация
+router.post('/auth/validate', validateApiKey, validateToken);
+
+// Баланс
+router.get('/balance', validateApiKey, getBalance);
+
+// Список кампаний с fullstats
+router.post('/campaigns/list', validateApiKey, getCampaignsList);
+
+// Обзор кампании с fullstats
+router.post('/campaigns/:id/overview', validateApiKey, getCampaignOverview);
+
+// CPM кластеры для товара
+router.post('/campaigns/:id/cpm-clusters', validateApiKey, getCpmClusters);
+
+// Ключевые фразы для ручной кампании
+router.get('/campaigns/:id/manual-keywords', validateApiKey, getManualKeywords);
+
+// Статистика автокампании
+router.get('/campaigns/:id/auto-stats', validateApiKey, getAutoStats);
+
+// Старые endpoint'ы для совместимости
 router.post('/test-key', validateApiKey, testApiKey);
-
-// Campaigns
 router.get('/campaigns', validateApiKey, getCampaigns);
-
-// Campaign stats
 router.get('/campaigns/:id/stats', validateApiKey, getCampaignStats);
-
-// Cluster stats
 router.post('/campaigns/:id/clusters', validateApiKey, getClusterStats);
-
-// Search report (optional)
 router.post('/search-overview', validateApiKey, getSearchReport);
 
 export default router;
