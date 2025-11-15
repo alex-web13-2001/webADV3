@@ -116,11 +116,12 @@ export class WildberriesService {
 
   /**
    * Получение списка всех рекламных кампаний
-   * GET /adv/v1/promotion/adverts
+   * POST /adv/v1/promotion/adverts
    */
   async getCampaigns(): Promise<Campaign[]> {
     try {
-      const response = await this.client.get<Campaign[]>('/adv/v1/promotion/adverts');
+      // POST с пустым массивом для получения всех кампаний
+      const response = await this.client.post<Campaign[]>('/adv/v1/promotion/adverts', []);
       return response.data;
     } catch (error) {
       this.handleError(error, '/adv/v1/promotion/adverts');
