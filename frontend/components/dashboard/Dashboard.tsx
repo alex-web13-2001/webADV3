@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { CampaignList } from './CampaignList';
 import { StatsOverview } from './StatsOverview';
 import { ClusterTable } from './ClusterTable';
+import { DailyStatsChart } from './DailyStatsChart';
+import { ClusterCharts } from './ClusterCharts';
 import { apiClient } from '@/lib/api-client';
 import { Campaign, CampaignStats, ClusterStats } from '@/types';
 import { LogOut, RefreshCw } from 'lucide-react';
@@ -244,8 +246,20 @@ export function Dashboard({ onLogout }: DashboardProps) {
                 )}
 
                 {/* Tab Content */}
-                {activeTab === 'overview' && stats && <StatsOverview stats={stats} />}
-                {activeTab === 'clusters' && <ClusterTable clusters={clusters} />}
+                {activeTab === 'overview' && stats && (
+                  <div className="space-y-6">
+                    <StatsOverview stats={stats} />
+                    {stats.days && stats.days.length > 0 && (
+                      <DailyStatsChart days={stats.days} />
+                    )}
+                  </div>
+                )}
+                {activeTab === 'clusters' && (
+                  <div>
+                    <ClusterTable clusters={clusters} />
+                    <ClusterCharts clusters={clusters} />
+                  </div>
+                )}
 
                 {loading && (
                   <Card>
